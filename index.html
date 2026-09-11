@@ -17,44 +17,93 @@ button.secondary{background:#343b55}.small{font-size:10px;color:#8994ad;margin-t
 <h1>Scan UPI QR</h1>
 <div class="sub">Tap Start Camera and allow camera access. Point the rear camera at the UPI QR code.</div>
 <div id="reader"></div><div id="status" class="status">Ready. Tap Start Camera.</div>
-<button id="startBtn" onclick="startCamera()">Start Camera</button>
-<button class="secondary" onclick="cancelScan()">Cancel</button>
+<button id="startBtn" type="button">Start Camera</button>
+<button id="cancelBtn" class="secondary" type="button">Cancel</button>
 <div class="small">Flow Lite Pro secure QR scanner</div>
 </div></div>
 <script>
+'use strict';
 let scanner=null,done=false,starting=false;
-const status=t=>document.getElementById('status').textContent=t;
+const $=id=>document.getElementById(id);
+const status=t=>$('status').textContent=t;
 function send(type,text){
-  if(window.opener&&!window.opener.closed)
-    window.opener.postMessage({type,text},'*');
+  try{
+    if(window.opener&&!window.opener.closed) window.opener.postMessage({type,text},'*');
+  }catch(_){ }
+}
+function scannerConfig(){
+  const w=Math.max(220,Math.min(300,window.innerWidth-60));
+  return {fps:10,qrbox:{width:w,height:w},aspectRatio:1.0};
 }
 async function startCamera(){
- if(starting||scanner)return; starting=true; done=false;
- const b=document.getElementById('startBtn'); b.disabled=true;
- status('Requesting camera permission…');
- try{
-  if(!window.isSecureContext)throw Error('HTTPS');
-  if(!navigator.mediaDevices?.getUserMedia)throw Error('NOAPI');
-  const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
-  s.getTracks().forEach(t=>t.stop());
-  if(typeof Html5Qrcode==='undefined')throw Error('LIB');
-  scanner=new Html5Qrcode('reader');
-  await scanner.start({facingMode:{ideal:'environment'}},
-   {fps:10,qrbox:{width:Math.min(300,innerWidth-60),height:Math.min(300,innerWidth-60)}},
-   async text=>{
-    if(done)return; done=true; status('QR detected. Returning to Flow Lite Pro…');
-    try{await scanner.stop()}catch(_{}); try{await scanner.clear()}catch(_){}
-    send('FLOWLITE_UPI_QR_SCANNED',text); setTimeout(()=>window.close(),250);
-   },()=>{});
-  starting=false; status('Camera is active. Scan a UPI QR code.');
- }catch(e){
-  scanner=null; starting=false; b.disabled=false; console.error(e);
-  if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError')
-   status('Camera permission is blocked. Chrome → site controls near the address bar → Permissions → Camera → Allow, then reload.');
-  else if(e.name==='NotFoundError')status('No usable camera was found on this device.');
-  else if(e.name==='NotReadableError')status('Camera is busy. Close other apps using the camera and try again.');
-  else status('Camera could not start. Check Chrome camera permission and try again.');
- }
+  if(starting||scanner)return;
+  starting=true; done=false;
+  const b=$('startBtn'); b.disabled=true;
+  status('Starting camera…');
+  try{
+    if(!window.isSecureContext) throw new Error('HTTPS');
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) throw new Error('NOAPI');
+    if(typeof Html5Qrcode==='undefined') throw new Error('LIB');
+
+    scanner=new Html5Qrcode('reader');
+
+    // Directly let html5-qrcode request permission and open the rear camera.
+    // Do not pre-open/stop getUserMedia: Android Chrome can reject that flow.
+    try{
+      await scanner.start(
+        {facingMode:'environment'},
+        scannerConfig(),
+        onScanSuccess,
+        ()=>{}
+      );
+    }catch(firstError){
+      // Fallback: after permission has been granted, select a rear video device.
+      const devices=await Html5Qrcode.getCameras();
+      if(!devices||!devices.length) throw firstError;
+      const rear=devices.find(d=>/back|rear|environment|camera 0/i.test(d.label))||devices[devices.length-1];
+      await scanner.start(rear.id,scannerConfig(),onScanSuccess,()=>{});
+    }
+
+    starting=false;
+    status('Camera is active. Scan a UPI QR code.');
+  }catch(e){
+    console.error('Flow Lite Pro camera error:',e);
+    try{if(scanner)await scanner.clear()}catch(_){ }
+    scanner=null; starting=false; b.disabled=false;
+    if(e&&e.name==='NotAllowedError')
+      status('Camera permission denied. Chrome site controls → Permissions → Camera → Allow, then reload.');
+    else if(e&&e.name==='NotFoundError')
+      status('No usable camera was found on this device.');
+    else if(e&&e.name==='NotReadableError')
+      status('Camera is busy. Close other apps using the camera and try again.');
+    else if(e&&e.message==='HTTPS')
+      status('Camera requires HTTPS. Open the GitHub Pages HTTPS address.');
+    else if(e&&e.message==='NOAPI')
+      status('This browser does not provide camera access. Open this page in Chrome.');
+    else if(e&&e.message==='LIB')
+      status('QR scanner library did not load. Check internet and reload the page.');
+    else
+      status('Camera could not start. Allow Camera permission in Chrome and try again.');
+  }
 }
-function cancelScan(){done=true;try{scanner?.stop()}catch(_){}send('FLOWLITE_UPI_QR_CANCELLED','');window.close();}
+async function onScanSuccess(text){
+  if(done)return;
+  done=true;
+  status('QR detected. Returning to Flow Lite Pro…');
+  try{if(scanner)await scanner.stop()}catch(_){ }
+  try{if(scanner)await scanner.clear()}catch(_){ }
+  scanner=null;
+  send('FLOWLITE_UPI_QR_SCANNED',text);
+  setTimeout(()=>{try{window.close()}catch(_){ }},250);
+}
+async function cancelScan(){
+  done=true;
+  try{if(scanner)await scanner.stop()}catch(_){ }
+  try{if(scanner)await scanner.clear()}catch(_){ }
+  scanner=null;
+  send('FLOWLITE_UPI_QR_CANCELLED','');
+  try{window.close()}catch(_){ }
+}
+$('startBtn').addEventListener('click',startCamera);
+$('cancelBtn').addEventListener('click',cancelScan);
 </script></body></html>
