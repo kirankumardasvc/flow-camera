@@ -4,198 +4,605 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Scan any QR code</title>
+
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07110c;font-family:Arial,Helvetica,sans-serif}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#07110c;
+  font-family:Arial,Helvetica,sans-serif
+}
+
 body{color:#fff}
-#app{position:fixed;inset:0;background:#07110c;overflow:hidden}
-#video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#07110c}
-#shade{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.42) 0%,rgba(0,0,0,.04) 28%,rgba(0,0,0,.03) 65%,rgba(0,0,0,.38) 100%);pointer-events:none}
-.top{position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 22px) 28px 0;text-align:center;z-index:3}
-.title{font-size:24px;font-weight:600;letter-spacing:-.3px;text-shadow:0 1px 3px #000}
-.back{position:absolute;left:34px;top:calc(env(safe-area-inset-top) + 18px);width:32px;height:32px;border:0;background:none;color:#fff;font-size:42px;line-height:28px;font-weight:300;padding:0;cursor:pointer}
-.brands{margin-top:15px;display:flex;justify-content:center;align-items:center;gap:18px;font-weight:800;color:#eee;text-shadow:0 1px 3px #000}
-.brand.g{font-size:27px}.brand.p{font-size:20px}.brand.paytm{font-size:22px}.brand.bh{font-size:19px;font-style:italic;letter-spacing:-1px}
-.frame{position:absolute;left:15%;right:15%;top:27.3%;height:31.3%;border:1px solid rgba(255,255,255,.18);border-radius:36px;background:rgba(255,255,255,.02);box-shadow:0 0 0 9999px rgba(0,0,0,.03);z-index:2}
-.corner{position:absolute;width:132px;height:132px;border-color:#fff;border-style:solid;border-width:0}
-.c1{left:-2px;top:-2px;border-left-width:7px;border-top-width:7px;border-radius:28px 0 0 0}
-.c2{right:-2px;top:-2px;border-right-width:7px;border-top-width:7px;border-radius:0 28px 0 0}
-.c3{left:-2px;bottom:-2px;border-left-width:7px;border-bottom-width:7px;border-radius:0 0 0 28px}
-.c4{right:-2px;bottom:-2px;border-right-width:7px;border-bottom-width:7px;border-radius:0 0 28px 0}
-.controls{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 108px);display:flex;justify-content:center;align-items:flex-start;gap:74px;z-index:4}
-.control{display:flex;flex-direction:column;align-items:center;gap:13px;color:#fff;font-size:17px;text-shadow:0 1px 4px #000}
-.circle{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.25);backdrop-filter:blur(7px);font-size:30px}
-.control:first-child .circle{background:#fff;color:#111}
-.zoom{font-weight:700;font-size:19px}
-.flash{font-size:31px}
-.upi{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 31px);text-align:center;font-size:34px;font-weight:800;font-style:italic;letter-spacing:-2px;z-index:3;text-shadow:0 2px 4px #000}
-.upi small{display:block;font-size:7px;font-style:normal;letter-spacing:.2px;margin-top:-5px}
-#status{position:absolute;left:20px;right:20px;top:calc(env(safe-area-inset-top) + 92px);text-align:center;font-size:12px;opacity:0;z-index:5;transition:opacity .2s}
-#scanCanvas{display:none}
+
+#app{
+  position:fixed;
+  inset:0;
+  background:#07110c;
+  overflow:hidden
+}
+
+#video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  background:#07110c
+}
+
+#shade{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    to bottom,
+    rgba(0,0,0,.42) 0%,
+    rgba(0,0,0,.04) 28%,
+    rgba(0,0,0,.03) 65%,
+    rgba(0,0,0,.38) 100%
+  );
+  pointer-events:none
+}
+
+.top{
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  padding:calc(env(safe-area-inset-top) + 22px) 28px 0;
+  text-align:center;
+  z-index:3
+}
+
+.title{
+  font-size:24px;
+  font-weight:600;
+  letter-spacing:-.3px;
+  text-shadow:0 1px 3px #000
+}
+
+.back{
+  position:absolute;
+  left:34px;
+  top:calc(env(safe-area-inset-top) + 18px);
+  width:32px;
+  height:32px;
+  border:0;
+  background:none;
+  color:#fff;
+  font-size:42px;
+  line-height:28px;
+  font-weight:300;
+  padding:0;
+  cursor:pointer
+}
+
+.brands{
+  margin-top:15px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:18px;
+  font-weight:800;
+  color:#eee;
+  text-shadow:0 1px 3px #000
+}
+
+.brand.g{font-size:27px}
+.brand.p{font-size:20px}
+.brand.paytm{font-size:22px}
+.brand.bh{
+  font-size:19px;
+  font-style:italic;
+  letter-spacing:-1px
+}
+
+.frame{
+  position:absolute;
+  left:15%;
+  right:15%;
+  top:27.3%;
+  height:31.3%;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:36px;
+  background:rgba(255,255,255,.02);
+  box-shadow:0 0 0 9999px rgba(0,0,0,.03);
+  z-index:2
+}
+
+.corner{
+  position:absolute;
+  width:132px;
+  height:132px;
+  border-color:#fff;
+  border-style:solid;
+  border-width:0
+}
+
+.c1{
+  left:-2px;
+  top:-2px;
+  border-left-width:7px;
+  border-top-width:7px;
+  border-radius:28px 0 0 0
+}
+
+.c2{
+  right:-2px;
+  top:-2px;
+  border-right-width:7px;
+  border-top-width:7px;
+  border-radius:0 28px 0 0
+}
+
+.c3{
+  left:-2px;
+  bottom:-2px;
+  border-left-width:7px;
+  border-bottom-width:7px;
+  border-radius:0 0 0 28px
+}
+
+.c4{
+  right:-2px;
+  bottom:-2px;
+  border-right-width:7px;
+  border-bottom-width:7px;
+  border-radius:0 0 28px 0
+}
+
+.controls{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:calc(env(safe-area-inset-bottom) + 108px);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:74px;
+  z-index:4
+}
+
+.control{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:13px;
+  color:#fff;
+  font-size:17px;
+  text-shadow:0 1px 4px #000
+}
+
+.circle{
+  width:74px;
+  height:74px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.25);
+  backdrop-filter:blur(7px);
+  font-size:30px
+}
+
+.control:first-child .circle{
+  background:#fff;
+  color:#111
+}
+
+.zoom{
+  font-weight:700;
+  font-size:19px
+}
+
+.flash{
+  font-size:31px
+}
+
+.upi{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:calc(env(safe-area-inset-bottom) + 31px);
+  text-align:center;
+  font-size:34px;
+  font-weight:800;
+  font-style:italic;
+  letter-spacing:-2px;
+  z-index:3;
+  text-shadow:0 2px 4px #000
+}
+
+.upi small{
+  display:block;
+  font-size:7px;
+  font-style:normal;
+  letter-spacing:.2px;
+  margin-top:-5px
+}
+
+#status{
+  position:absolute;
+  left:20px;
+  right:20px;
+  top:calc(env(safe-area-inset-top) + 92px);
+  text-align:center;
+  font-size:12px;
+  opacity:0;
+  z-index:5;
+  transition:opacity .2s
+}
+
+#scanCanvas{
+  display:none
+}
+
 @media(max-width:380px){
- .title{font-size:21px}.brands{gap:12px}.brand.g{font-size:24px}
- .frame{left:14%;right:14%}.corner{width:118px;height:118px}
- .controls{gap:55px}.circle{width:68px;height:68px}
+  .title{font-size:21px}
+  .brands{gap:12px}
+  .brand.g{font-size:24px}
+  .frame{
+    left:14%;
+    right:14%
+  }
+  .corner{
+    width:118px;
+    height:118px
+  }
+  .controls{gap:55px}
+  .circle{
+    width:68px;
+    height:68px
+  }
 }
 </style>
 </head>
+
 <body>
+
 <div id="app">
+
   <video id="video" autoplay muted playsinline></video>
   <div id="shade"></div>
 
   <div class="top">
+
     <button class="back" id="back" aria-label="Back">‹</button>
+
     <div class="title">Scan any QR code</div>
+
     <div class="brands" aria-hidden="true">
       <span class="brand g">GPay</span>
       <span class="brand p">PhonePe</span>
       <span class="brand paytm">paytm</span>
       <span class="brand bh">BHIM</span>
     </div>
+
   </div>
 
   <div class="frame" aria-hidden="true">
-    <span class="corner c1"></span><span class="corner c2"></span>
-    <span class="corner c3"></span><span class="corner c4"></span>
+    <span class="corner c1"></span>
+    <span class="corner c2"></span>
+    <span class="corner c3"></span>
+    <span class="corner c4"></span>
   </div>
 
   <div class="controls">
+
     <div class="control">
-      <button class="circle" id="torch" aria-label="Torch"><span class="flash">▣</span></button>
+      <button class="circle" id="torch" aria-label="Torch">
+        <span class="flash">▣</span>
+      </button>
       <span>Torch</span>
     </div>
+
     <div class="control">
-      <button class="circle" id="zoom" aria-label="Zoom"><span class="zoom">1x</span></button>
+      <button class="circle" id="zoom" aria-label="Zoom">
+        <span class="zoom">1x</span>
+      </button>
       <span>Zoom</span>
     </div>
-    <div class="control">
-</div>
+
   </div>
 
-  <div class="upi">UPI<small>UNIFIED PAYMENTS INTERFACE</small></div>
+  <div class="upi">
+    UPI
+    <small>UNIFIED PAYMENTS INTERFACE</small>
+  </div>
+
   <div id="status"></div>
   <canvas id="scanCanvas"></canvas>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
 <script>
 (() => {
+
   const video = document.getElementById('video');
   const canvas = document.getElementById('scanCanvas');
-  const ctx = canvas.getContext('2d', {willReadFrequently:true});
+  const ctx = canvas.getContext('2d', {
+    willReadFrequently:true
+  });
+
   const torchBtn = document.getElementById('torch');
   const zoomBtn = document.getElementById('zoom');
-const back = document.getElementById('back');
+  const back = document.getElementById('back');
   const status = document.getElementById('status');
 
-  let stream = null, track = null, stopped = false, scanning = false;
+  let stream = null;
+  let track = null;
+  let stopped = false;
+  let scanning = false;
   let zoomLevel = 1;
   let handled = false;
 
-  const returnUrl = new URLSearchParams(location.search).get('return');
+  const returnUrl =
+    new URLSearchParams(location.search).get('return');
 
   function showStatus(msg) {
     status.textContent = msg;
     status.style.opacity = '1';
-    setTimeout(() => status.style.opacity = '0', 1600);
+
+    setTimeout(() => {
+      status.style.opacity = '0';
+    },1600);
   }
 
   async function startCamera() {
+
     try {
-      if (stream) stream.getTracks().forEach(t => t.stop());
+
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+      }
+
       stream = await navigator.mediaDevices.getUserMedia({
-        video: {facingMode:{ideal:'environment'}, width:{ideal:1280}, height:{ideal:720}},
+        video:{
+          facingMode:{ideal:'environment'},
+          width:{ideal:1280},
+          height:{ideal:720}
+        },
         audio:false
       });
+
       video.srcObject = stream;
+
       track = stream.getVideoTracks()[0];
+
       stopped = false;
       scanning = true;
+
       requestAnimationFrame(scan);
-    } catch (e) {
+
+    } catch(e) {
+
       showStatus('Camera permission is required');
+
     }
   }
 
   function scan() {
+
     if (!scanning || stopped || handled) return;
+
     if (video.readyState >= 2 && video.videoWidth) {
-      const w = Math.min(video.videoWidth, 900);
-      const h = Math.round(video.videoHeight * (w / video.videoWidth));
-      canvas.width = w; canvas.height = h;
-      ctx.drawImage(video, 0, 0, w, h);
-      const image = ctx.getImageData(0,0,w,h);
-      const code = window.jsQR ? jsQR(image.data, image.width, image.height, {inversionAttempts:'attemptBoth'}) : null;
+
+      const w = Math.min(video.videoWidth,900);
+      const h = Math.round(
+        video.videoHeight * (w / video.videoWidth)
+      );
+
+      canvas.width = w;
+      canvas.height = h;
+
+      ctx.drawImage(video,0,0,w,h);
+
+      const image = ctx.getImageData(
+        0,
+        0,
+        w,
+        h
+      );
+
+      const code =
+        window.jsQR
+          ? jsQR(
+              image.data,
+              image.width,
+              image.height,
+              {
+                inversionAttempts:'attemptBoth'
+              }
+            )
+          : null;
+
       if (code && code.data) {
+
         handled = true;
+
         handleScan(code.data);
+
         return;
       }
     }
+
     requestAnimationFrame(scan);
   }
 
   function handleScan(data) {
-    if (stream) stream.getTracks().forEach(t => t.stop());
-    // Preserve the complete QR payload. Do not reconstruct merchant UPI URLs here.
-    if (returnUrl) {
-      try {
-        const u = new URL(returnUrl, location.href);
-        u.searchParams.set('qr', data);
-        location.href = u.toString();
-        return;
-      } catch (_) {}
+
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
     }
-    // Standalone fallback: send the raw QR payload to the opener if available.
+
+    /*
+      Preserve the complete QR payload.
+      Do not reconstruct merchant UPI URLs here.
+    */
+
+    if (returnUrl) {
+
+      try {
+
+        const u = new URL(
+          returnUrl,
+          location.href
+        );
+
+        u.searchParams.set('qr',data);
+
+        location.href = u.toString();
+
+        return;
+
+      } catch(_) {}
+
+    }
+
     if (window.opener) {
-      window.opener.postMessage({type:'FLOWLITE_QR_SCAN', qr:data}, '*');
+
+      window.opener.postMessage(
+        {
+          type:'FLOWLITE_QR_SCAN',
+          qr:data
+        },
+        '*'
+      );
+
       window.close();
+
       return;
     }
-    // If launched directly, show the raw payload without changing it.
+
     navigator.clipboard?.writeText(data).catch(()=>{});
+
     showStatus('QR scanned');
+
     handled = false;
     scanning = true;
+
     startCamera();
   }
 
-  torchBtn.addEventListener('click', async () => {
+  torchBtn.addEventListener('click',async() => {
+
     if (!track) return;
-    const caps = track.getCapabilities ? track.getCapabilities() : {};
-    if (!caps.torch) { showStatus('Torch unavailable'); return; }
+
+    const caps =
+      track.getCapabilities
+        ? track.getCapabilities()
+        : {};
+
+    if (!caps.torch) {
+
+      showStatus('Torch unavailable');
+
+      return;
+    }
+
     try {
-      const current = track.getSettings().torch === true;
-      await track.applyConstraints({advanced:[{torch:!current}]});
-    } catch (_) { showStatus('Torch unavailable'); }
+
+      const current =
+        track.getSettings().torch === true;
+
+      await track.applyConstraints({
+        advanced:[
+          {
+            torch:!current
+          }
+        ]
+      });
+
+    } catch(_) {
+
+      showStatus('Torch unavailable');
+
+    }
   });
 
-  zoomBtn.addEventListener('click', async () => {
+  zoomBtn.addEventListener('click',async() => {
+
     if (!track) return;
-    const caps = track.getCapabilities ? track.getCapabilities() : {};
-    if (!caps.zoom) { showStatus('Zoom unavailable'); return; }
-    const min = caps.zoom.min ?? 1, max = caps.zoom.max ?? 1;
-    zoomLevel = zoomLevel === 1 ? Math.min(2, max) : 1;
-    zoomLevel = Math.max(min, Math.min(max, zoomLevel));
+
+    const caps =
+      track.getCapabilities
+        ? track.getCapabilities()
+        : {};
+
+    if (!caps.zoom) {
+
+      showStatus('Zoom unavailable');
+
+      return;
+    }
+
+    const min = caps.zoom.min ?? 1;
+    const max = caps.zoom.max ?? 1;
+
+    zoomLevel =
+      zoomLevel === 1
+        ? Math.min(2,max)
+        : 1;
+
+    zoomLevel =
+      Math.max(
+        min,
+        Math.min(max,zoomLevel)
+      );
+
     try {
-      await track.applyConstraints({advanced:[{zoom:zoomLevel}]});
-      zoomBtn.querySelector('.zoom').textContent = Math.round(zoomLevel) + 'x';
-    } catch (_) {}
-  });
-back.addEventListener('click', () => {
-    if (history.length > 1) history.back();
-    else if (returnUrl) location.href = returnUrl;
-    else window.close();
+
+      await track.applyConstraints({
+        advanced:[
+          {
+            zoom:zoomLevel
+          }
+        ]
+      });
+
+      zoomBtn.querySelector('.zoom').textContent =
+        Math.round(zoomLevel) + 'x';
+
+    } catch(_) {}
+
   });
 
-  window.addEventListener('pagehide', () => {
-    if (stream) stream.getTracks().forEach(t => t.stop());
+  back.addEventListener('click',() => {
+
+    if (history.length > 1) {
+
+      history.back();
+
+    } else if (returnUrl) {
+
+      location.href = returnUrl;
+
+    } else {
+
+      window.close();
+
+    }
+
+  });
+
+  window.addEventListener('pagehide',() => {
+
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+    }
+
   });
 
   // Camera permission is requested automatically on page load.
   startCamera();
+
 })();
 </script>
+
 </body>
 </html>
