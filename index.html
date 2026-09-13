@@ -1,55 +1,227 @@
 <!doctype html>
-<html lang="en"><head>
+<html lang="en">
+<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>FlowLite — Scan & Pay</title>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Scan any QR code</title>
 <style>
-:root{--ink:#17151a;--muted:#77717d;--line:#e9e5eb;--brand:#22002d;--accent:#20d38b;--soft:#f7f5f8;--danger:#c23b4a}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#fff;color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
-body{display:flex;justify-content:center}.wrap{width:100%;max-width:520px;min-height:100vh;padding:14px 14px 24px;display:flex;flex-direction:column}
-.top{display:flex;align-items:center;justify-content:space-between;padding:4px 2px 14px}.brand{display:flex;align-items:center;gap:10px}.logo{width:42px;height:42px;border-radius:13px;background:var(--brand);display:grid;place-items:center;position:relative;overflow:hidden;box-shadow:0 8px 20px #22002d22}.logo span{font-weight:950;font-size:18px;letter-spacing:-2px;color:#fff;line-height:1}.logo i{position:absolute;width:18px;height:5px;background:var(--accent);right:4px;top:8px;border-radius:8px;transform:rotate(-22deg)}.brand b{font-size:18px;letter-spacing:-.5px}.brand small{display:block;color:var(--muted);font-size:10px;margin-top:1px}.close{width:38px;height:38px;border:1px solid var(--line);background:#fff;border-radius:12px;font-size:21px;color:#555;display:grid;place-items:center}
-.hero{text-align:center;padding:5px 8px 13px}.qr-mark{width:62px;height:62px;margin:0 auto 10px;border-radius:20px;background:var(--brand);display:grid;place-items:center;position:relative;box-shadow:0 12px 28px #22002d20}.qr-mark svg{width:42px;height:42px}.qr-mark:after{content:"";position:absolute;right:7px;top:7px;width:15px;height:5px;border-radius:8px;background:var(--accent);transform:rotate(-22deg)}h1{font-size:23px;margin:0;font-weight:900;letter-spacing:-.7px}.sub{font-size:12px;line-height:1.5;color:var(--muted);margin:5px auto 0;max-width:360px}
-.scanner-card{background:var(--soft);border:1px solid var(--line);border-radius:24px;padding:10px;box-shadow:0 10px 30px #22002d0c}.frame{background:#09090b;border-radius:19px;overflow:hidden;position:relative;min-height:330px;display:grid;place-items:center}#reader{width:100%;min-height:330px;background:#09090b}.scan-overlay{position:absolute;inset:22px;pointer-events:none;border:1px solid #ffffff18;border-radius:17px}.scan-overlay:before,.scan-overlay:after{content:"";position:absolute;width:38px;height:38px;border-color:var(--accent);border-style:solid}.scan-overlay:before{left:-1px;top:-1px;border-width:4px 0 0 4px;border-radius:12px 0 0 0}.scan-overlay:after{right:-1px;bottom:-1px;border-width:0 4px 4px 0;border-radius:0 0 12px 0}.scan-line{position:absolute;left:10%;right:10%;top:50%;height:2px;background:var(--accent);box-shadow:0 0 14px #20d38b88;animation:scan 2s ease-in-out infinite}@keyframes scan{0%,100%{transform:translateY(-90px);opacity:.35}50%{transform:translateY(90px);opacity:1}}
-.status{display:flex;gap:9px;align-items:center;margin-top:10px;padding:11px 12px;border:1px solid var(--line);background:#fff;border-radius:13px;color:#4f4953;font-size:11px;line-height:1.4}.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:0 0 8px}.status.error .dot{background:var(--danger)}
-.actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}button{font:inherit;cursor:pointer}.primary{width:100%;border:0;border-radius:14px;padding:14px;background:var(--brand);color:#fff;font-weight:850}.secondary{width:100%;border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff;color:var(--ink);font-weight:750}.primary:disabled{opacity:.55}.hint{text-align:center;color:#9a949d;font-size:9px;margin:11px 0 0}.secure{display:flex;justify-content:center;gap:5px;align-items:center;color:#8c858f;font-size:9px;margin-top:auto;padding-top:16px}.secure b{color:#20a873}
-#reader video{width:100%!important;height:auto!important;object-fit:cover}#reader__scan_region{min-height:330px!important}#reader__dashboard{display:none!important}#reader__dashboard_section_csr{display:none!important}
-@media(max-width:380px){.wrap{padding:10px}.frame,#reader,#reader__scan_region{min-height:300px!important}.hero{padding-bottom:10px}h1{font-size:21px}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07110c;font-family:Arial,Helvetica,sans-serif}
+body{color:#fff}
+#app{position:fixed;inset:0;background:#07110c;overflow:hidden}
+#video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#07110c}
+#shade{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.42) 0%,rgba(0,0,0,.04) 28%,rgba(0,0,0,.03) 65%,rgba(0,0,0,.38) 100%);pointer-events:none}
+.top{position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 22px) 28px 0;text-align:center;z-index:3}
+.title{font-size:24px;font-weight:600;letter-spacing:-.3px;text-shadow:0 1px 3px #000}
+.back{position:absolute;left:34px;top:calc(env(safe-area-inset-top) + 18px);width:32px;height:32px;border:0;background:none;color:#fff;font-size:42px;line-height:28px;font-weight:300;padding:0;cursor:pointer}
+.brands{margin-top:15px;display:flex;justify-content:center;align-items:center;gap:18px;font-weight:800;color:#eee;text-shadow:0 1px 3px #000}
+.brand.g{font-size:27px}.brand.p{font-size:20px}.brand.paytm{font-size:22px}.brand.bh{font-size:19px;font-style:italic;letter-spacing:-1px}
+.frame{position:absolute;left:15%;right:15%;top:27.3%;height:31.3%;border:1px solid rgba(255,255,255,.18);border-radius:36px;background:rgba(255,255,255,.02);box-shadow:0 0 0 9999px rgba(0,0,0,.03);z-index:2}
+.corner{position:absolute;width:132px;height:132px;border-color:#fff;border-style:solid;border-width:0}
+.c1{left:-2px;top:-2px;border-left-width:7px;border-top-width:7px;border-radius:28px 0 0 0}
+.c2{right:-2px;top:-2px;border-right-width:7px;border-top-width:7px;border-radius:0 28px 0 0}
+.c3{left:-2px;bottom:-2px;border-left-width:7px;border-bottom-width:7px;border-radius:0 0 0 28px}
+.c4{right:-2px;bottom:-2px;border-right-width:7px;border-bottom-width:7px;border-radius:0 0 28px 0}
+.controls{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 108px);display:flex;justify-content:center;align-items:flex-start;gap:74px;z-index:4}
+.control{display:flex;flex-direction:column;align-items:center;gap:13px;color:#fff;font-size:17px;text-shadow:0 1px 4px #000}
+.circle{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.25);backdrop-filter:blur(7px);font-size:30px}
+.control:first-child .circle{background:#fff;color:#111}
+.zoom{font-weight:700;font-size:19px}
+.flash{font-size:31px}
+.gallery-icon{font-size:31px}
+#gallery{display:none}
+.upi{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 31px);text-align:center;font-size:34px;font-weight:800;font-style:italic;letter-spacing:-2px;z-index:3;text-shadow:0 2px 4px #000}
+.upi small{display:block;font-size:7px;font-style:normal;letter-spacing:.2px;margin-top:-5px}
+#status{position:absolute;left:20px;right:20px;top:calc(env(safe-area-inset-top) + 92px);text-align:center;font-size:12px;opacity:0;z-index:5;transition:opacity .2s}
+#scanCanvas{display:none}
+@media(max-width:380px){
+ .title{font-size:21px}.brands{gap:12px}.brand.g{font-size:24px}
+ .frame{left:14%;right:14%}.corner{width:118px;height:118px}
+ .controls{gap:55px}.circle{width:68px;height:68px}
+}
 </style>
-<style>#cameraPermissionHint{display:none!important}</style>
+</head>
+<body>
+<div id="app">
+  <video id="video" autoplay muted playsinline></video>
+  <div id="shade"></div>
+
+  <div class="top">
+    <button class="back" id="back" aria-label="Back">‹</button>
+    <div class="title">Scan any QR code</div>
+    <div class="brands" aria-hidden="true">
+      <span class="brand g">G Pay</span>
+      <span class="brand p">◉ PhonePe</span>
+      <span class="brand paytm">paytm</span>
+      <span class="brand bh">BHIM</span>
+    </div>
+  </div>
+
+  <div class="frame" aria-hidden="true">
+    <span class="corner c1"></span><span class="corner c2"></span>
+    <span class="corner c3"></span><span class="corner c4"></span>
+  </div>
+
+  <div class="controls">
+    <div class="control">
+      <button class="circle" id="torch" aria-label="Torch"><span class="flash">▣</span></button>
+      <span>Torch</span>
+    </div>
+    <div class="control">
+      <button class="circle" id="zoom" aria-label="Zoom"><span class="zoom">1x</span></button>
+      <span>Zoom</span>
+    </div>
+    <div class="control">
+      <button class="circle" id="galleryBtn" aria-label="Gallery"><span class="gallery-icon">▧</span></button>
+      <span>Gallery</span>
+      <input id="gallery" type="file" accept="image/*">
+    </div>
+  </div>
+
+  <div class="upi">UPI<small>UNIFIED PAYMENTS INTERFACE</small></div>
+  <div id="status"></div>
+  <canvas id="scanCanvas"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
-/* FLOWLITE_CAMERA_AUTO_PERMISSION_FIX */
-(function(){
-  window.flowLiteCameraPermissionReady=false;
-  async function cameraPermissionGranted(){
-    try{if(navigator.permissions&&navigator.permissions.query){const p=await navigator.permissions.query({name:'camera'});return p.state==='granted'}}catch(e){} return false;
+(() => {
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('scanCanvas');
+  const ctx = canvas.getContext('2d', {willReadFrequently:true});
+  const torchBtn = document.getElementById('torch');
+  const zoomBtn = document.getElementById('zoom');
+  const galleryBtn = document.getElementById('galleryBtn');
+  const gallery = document.getElementById('gallery');
+  const back = document.getElementById('back');
+  const status = document.getElementById('status');
+
+  let stream = null, track = null, stopped = false, scanning = false;
+  let zoomLevel = 1;
+  let handled = false;
+
+  const returnUrl = new URLSearchParams(location.search).get('return');
+
+  function showStatus(msg) {
+    status.textContent = msg;
+    status.style.opacity = '1';
+    setTimeout(() => status.style.opacity = '0', 1600);
   }
-  window.flowLiteEnsureCamera=async function(startFn){
-    try{if(await cameraPermissionGranted()){window.flowLiteCameraPermissionReady=true;return typeof startFn==='function'?await startFn():true}}catch(e){}
-    try{const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});stream.getTracks().forEach(t=>t.stop());window.flowLiteCameraPermissionReady=true;return typeof startFn==='function'?await startFn():true}catch(err){window.flowLiteCameraPermissionReady=false;console.warn('Camera permission not available:',err);return false}
-  };
+
+  async function startCamera() {
+    try {
+      if (stream) stream.getTracks().forEach(t => t.stop());
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: {facingMode:{ideal:'environment'}, width:{ideal:1280}, height:{ideal:720}},
+        audio:false
+      });
+      video.srcObject = stream;
+      track = stream.getVideoTracks()[0];
+      stopped = false;
+      scanning = true;
+      requestAnimationFrame(scan);
+    } catch (e) {
+      showStatus('Camera permission is required');
+    }
+  }
+
+  function scan() {
+    if (!scanning || stopped || handled) return;
+    if (video.readyState >= 2 && video.videoWidth) {
+      const w = Math.min(video.videoWidth, 900);
+      const h = Math.round(video.videoHeight * (w / video.videoWidth));
+      canvas.width = w; canvas.height = h;
+      ctx.drawImage(video, 0, 0, w, h);
+      const image = ctx.getImageData(0,0,w,h);
+      const code = window.jsQR ? jsQR(image.data, image.width, image.height, {inversionAttempts:'attemptBoth'}) : null;
+      if (code && code.data) {
+        handled = true;
+        handleScan(code.data);
+        return;
+      }
+    }
+    requestAnimationFrame(scan);
+  }
+
+  function handleScan(data) {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    // Preserve the complete QR payload. Do not reconstruct merchant UPI URLs here.
+    if (returnUrl) {
+      try {
+        const u = new URL(returnUrl, location.href);
+        u.searchParams.set('qr', data);
+        location.href = u.toString();
+        return;
+      } catch (_) {}
+    }
+    // Standalone fallback: send the raw QR payload to the opener if available.
+    if (window.opener) {
+      window.opener.postMessage({type:'FLOWLITE_QR_SCAN', qr:data}, '*');
+      window.close();
+      return;
+    }
+    // If launched directly, show the raw payload without changing it.
+    navigator.clipboard?.writeText(data).catch(()=>{});
+    showStatus('QR scanned');
+    handled = false;
+    scanning = true;
+    startCamera();
+  }
+
+  torchBtn.addEventListener('click', async () => {
+    if (!track) return;
+    const caps = track.getCapabilities ? track.getCapabilities() : {};
+    if (!caps.torch) { showStatus('Torch unavailable'); return; }
+    try {
+      const current = track.getSettings().torch === true;
+      await track.applyConstraints({advanced:[{torch:!current}]});
+    } catch (_) { showStatus('Torch unavailable'); }
+  });
+
+  zoomBtn.addEventListener('click', async () => {
+    if (!track) return;
+    const caps = track.getCapabilities ? track.getCapabilities() : {};
+    if (!caps.zoom) { showStatus('Zoom unavailable'); return; }
+    const min = caps.zoom.min ?? 1, max = caps.zoom.max ?? 1;
+    zoomLevel = zoomLevel === 1 ? Math.min(2, max) : 1;
+    zoomLevel = Math.max(min, Math.min(max, zoomLevel));
+    try {
+      await track.applyConstraints({advanced:[{zoom:zoomLevel}]});
+      zoomBtn.querySelector('.zoom').textContent = Math.round(zoomLevel) + 'x';
+    } catch (_) {}
+  });
+
+  galleryBtn.addEventListener('click', () => gallery.click());
+
+  gallery.addEventListener('change', async e => {
+    const file = e.target.files?.[0];
+    if (!file || !window.jsQR) return;
+    const img = new Image();
+    img.onload = () => {
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      ctx.drawImage(img,0,0);
+      const image = ctx.getImageData(0,0,canvas.width,canvas.height);
+      const code = jsQR(image.data, image.width, image.height, {inversionAttempts:'attemptBoth'});
+      if (code?.data) { handled = true; handleScan(code.data); }
+      else showStatus('No QR code found');
+      URL.revokeObjectURL(img.src);
+    };
+    img.src = URL.createObjectURL(file);
+  });
+
+  back.addEventListener('click', () => {
+    if (history.length > 1) history.back();
+    else if (returnUrl) location.href = returnUrl;
+    else window.close();
+  });
+
+  window.addEventListener('pagehide', () => {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+  });
+
+  // Camera permission is requested automatically on page load.
+  startCamera();
 })();
 </script>
-</head><body>
-<div class="wrap">
-  <div class="top"><div class="brand"><div class="logo"><span>FL</span><i></i></div><div><b>FlowLite</b><small>Scan &amp; Pay</small></div></div><button id="cancelBtn" class="close" type="button" aria-label="Back">×</button></div>
-  <div class="hero"><div class="qr-mark" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M7 25V13a6 6 0 0 1 6-6h12M39 7h12a6 6 0 0 1 6 6v12M57 39v12a6 6 0 0 1-6 6H39M25 57H13a6 6 0 0 1-6-6V39" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><path d="M35 7h16a6 6 0 0 1 6 6v16z" fill="#20d38b"/><rect x="18" y="18" width="11" height="11" rx="2" fill="none" stroke="#fff" stroke-width="4"/><rect x="39" y="20" width="10" height="10" rx="2" fill="none" stroke="#fff" stroke-width="4"/><path d="M18 39h10v10H18zM39 39h10M39 49h10M49 39v10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h1>Scan UPI QR</h1><div class="sub">Point your camera at a UPI QR code. We’ll send the payment request to your UPI app.</div></div>
-  <div class="scanner-card"><div class="frame"><div id="reader"></div><div class="scan-overlay"><div class="scan-line"></div></div></div><div id="status" class="status"><span class="dot"></span><span>Starting secure camera…</span></div></div>
-  <div class="actions"><button id="startBtn" class="primary" type="button">Start Camera</button><button id="cancelBtn2" class="secondary" type="button">Back to FlowLite</button></div>
-  <div class="hint">Camera access is used only to scan the QR code. No image is uploaded.</div><div class="secure">● <b>Secure QR scanning</b> · FlowLite</div>
-</div>
-<script>
-'use strict';
-let scanner=null,done=false,starting=false;
-const $=id=>document.getElementById(id); const status=t=>{$('status').querySelector('span:last-child').textContent=t;$('status').classList.toggle('error',/denied|could not|failed|requires|busy|found|load/i.test(t))};
-function send(type,text){try{if(window.opener&&!window.opener.closed)window.opener.postMessage({type,text},'*')}catch(_){}
-  try{if(window.parent&&window.parent!==window)window.parent.postMessage({type,text},'*')}catch(_){}
-}
-function scannerConfig(){const w=Math.max(220,Math.min(300,window.innerWidth-72));return{fps:10,qrbox:{width:w,height:w},aspectRatio:1.0};}
-async function startCamera(){if(starting||scanner)return;starting=true;done=false;$('startBtn').disabled=true;status('Opening camera…');try{if(!window.isSecureContext)throw new Error('HTTPS');if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('NOAPI');if(typeof Html5Qrcode==='undefined')throw new Error('LIB');scanner=new Html5Qrcode('reader');try{await scanner.start({facingMode:'environment'},scannerConfig(),onScanSuccess,()=>{})}catch(firstError){const devices=await Html5Qrcode.getCameras();if(!devices||!devices.length)throw firstError;const rear=devices.find(d=>/back|rear|environment|camera 0/i.test(d.label))||devices[devices.length-1];await scanner.start(rear.id,scannerConfig(),onScanSuccess,()=>{})}starting=false;status('Camera active · Align the QR inside the frame')}catch(e){console.error(e);try{if(scanner)await scanner.clear()}catch(_){}scanner=null;starting=false;$('startBtn').disabled=false;if(e&&e.name==='NotAllowedError')status('Camera permission denied. Allow Camera for this site, then reload.');else if(e&&e.name==='NotFoundError')status('No usable camera was found on this device.');else if(e&&e.name==='NotReadableError')status('Camera is busy. Close other apps using the camera and try again.');else if(e&&e.message==='HTTPS')status('Camera requires HTTPS. Open the GitHub Pages HTTPS address.');else if(e&&e.message==='NOAPI')status('This browser does not provide camera access. Open in Chrome.');else if(e&&e.message==='LIB')status('QR scanner library did not load. Check internet and reload.');else status('Camera could not start. Allow Camera permission and try again.')}}
-async function onScanSuccess(text){if(done)return;done=true;status('QR detected · Opening payment flow…');try{if(scanner)await scanner.stop()}catch(_){}try{if(scanner)await scanner.clear()}catch(_){}scanner=null;send('FLOWLITE_UPI_QR_SCANNED',text);setTimeout(()=>{try{window.close()}catch(_){}},250)}
-async function cancelScan(){done=true;try{if(scanner)await scanner.stop()}catch(_){}try{if(scanner)await scanner.clear()}catch(_){}scanner=null;send('FLOWLITE_UPI_QR_CANCELLED','');try{window.close()}catch(_){} }
-$('startBtn').addEventListener('click',startCamera);$('cancelBtn').addEventListener('click',cancelScan);$('cancelBtn2').addEventListener('click',cancelScan);
-window.addEventListener('load',function(){setTimeout(function(){if(typeof window.startCamera==='function')window.flowLiteEnsureCamera(window.startCamera)},350)});
-</script>
-</body></html>
+</body>
+</html>
