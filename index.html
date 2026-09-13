@@ -28,8 +28,6 @@ body{color:#fff}
 .control:first-child .circle{background:#fff;color:#111}
 .zoom{font-weight:700;font-size:19px}
 .flash{font-size:31px}
-.gallery-icon{font-size:31px}
-#gallery{display:none}
 .upi{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 31px);text-align:center;font-size:34px;font-weight:800;font-style:italic;letter-spacing:-2px;z-index:3;text-shadow:0 2px 4px #000}
 .upi small{display:block;font-size:7px;font-style:normal;letter-spacing:.2px;margin-top:-5px}
 #status{position:absolute;left:20px;right:20px;top:calc(env(safe-area-inset-top) + 92px);text-align:center;font-size:12px;opacity:0;z-index:5;transition:opacity .2s}
@@ -50,8 +48,8 @@ body{color:#fff}
     <button class="back" id="back" aria-label="Back">‹</button>
     <div class="title">Scan any QR code</div>
     <div class="brands" aria-hidden="true">
-      <span class="brand g">G Pay</span>
-      <span class="brand p">◉ PhonePe</span>
+      <span class="brand g">GPay</span>
+      <span class="brand p">PhonePe</span>
       <span class="brand paytm">paytm</span>
       <span class="brand bh">BHIM</span>
     </div>
@@ -72,10 +70,7 @@ body{color:#fff}
       <span>Zoom</span>
     </div>
     <div class="control">
-      <button class="circle" id="galleryBtn" aria-label="Gallery"><span class="gallery-icon">▧</span></button>
-      <span>Gallery</span>
-      <input id="gallery" type="file" accept="image/*">
-    </div>
+</div>
   </div>
 
   <div class="upi">UPI<small>UNIFIED PAYMENTS INTERFACE</small></div>
@@ -91,9 +86,7 @@ body{color:#fff}
   const ctx = canvas.getContext('2d', {willReadFrequently:true});
   const torchBtn = document.getElementById('torch');
   const zoomBtn = document.getElementById('zoom');
-  const galleryBtn = document.getElementById('galleryBtn');
-  const gallery = document.getElementById('gallery');
-  const back = document.getElementById('back');
+const back = document.getElementById('back');
   const status = document.getElementById('status');
 
   let stream = null, track = null, stopped = false, scanning = false;
@@ -190,26 +183,7 @@ body{color:#fff}
       zoomBtn.querySelector('.zoom').textContent = Math.round(zoomLevel) + 'x';
     } catch (_) {}
   });
-
-  galleryBtn.addEventListener('click', () => gallery.click());
-
-  gallery.addEventListener('change', async e => {
-    const file = e.target.files?.[0];
-    if (!file || !window.jsQR) return;
-    const img = new Image();
-    img.onload = () => {
-      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
-      ctx.drawImage(img,0,0);
-      const image = ctx.getImageData(0,0,canvas.width,canvas.height);
-      const code = jsQR(image.data, image.width, image.height, {inversionAttempts:'attemptBoth'});
-      if (code?.data) { handled = true; handleScan(code.data); }
-      else showStatus('No QR code found');
-      URL.revokeObjectURL(img.src);
-    };
-    img.src = URL.createObjectURL(file);
-  });
-
-  back.addEventListener('click', () => {
+back.addEventListener('click', () => {
     if (history.length > 1) history.back();
     else if (returnUrl) location.href = returnUrl;
     else window.close();
