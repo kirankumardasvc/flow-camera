@@ -12,30 +12,29 @@
 #video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:#000;transform:translateZ(0)}
 .shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.20),transparent 25%,transparent 68%,rgba(0,0,0,.46))}
 .top{position:absolute;z-index:5;top:0;left:0;right:0;height:68px;padding:env(safe-area-inset-top) 14px 0;display:flex;align-items:center}.back{width:48px;height:48px;border:0;background:transparent;color:#fff;font-size:40px;line-height:1;cursor:pointer;text-shadow:0 2px 8px #000}.scanTitle{position:absolute;left:50%;transform:translateX(-50%);font-size:20px;font-weight:850;white-space:nowrap;text-shadow:0 2px 10px #000}
-.scanbox{position:absolute;z-index:3;left:12%;right:12%;top:20%;bottom:28%;border-radius:24px;pointer-events:none}.corner{position:absolute;width:54px;height:54px;border-color:#2df18a;border-style:solid;filter:drop-shadow(0 0 8px rgba(32,184,107,.7))}.tl{left:0;top:0;border-width:5px 0 0 5px;border-radius:17px 0 0 0}.tr{right:0;top:0;border-width:5px 5px 0 0;border-radius:0 17px 0 0}.bl{left:0;bottom:0;border-width:0 0 5px 5px;border-radius:0 0 0 17px}.br{right:0;bottom:0;border-width:0 5px 5px 0;border-radius:0 0 17px 0}.beam{position:absolute;left:4%;right:4%;top:50%;height:2px;background:#2df18a;box-shadow:0 0 14px #2df18a;animation:scan 2.1s ease-in-out infinite}@keyframes scan{0%,100%{transform:translateY(-70px);opacity:.3}50%{transform:translateY(70px);opacity:1}}
+.scanbox{position:absolute;z-index:3;left:12%;right:12%;top:20%;bottom:28%;border-radius:24px;pointer-events:none}.corner{position:absolute;width:54px;height:54px;border-color:#2df18a;border-style:solid;filter:drop-shadow(0 0 8px rgba(32,184,107,.7))}.tl{left:0;top:0;border-width:5px 0 0 5px;border-radius:17px 0 0 0}.tr{right:0;top:0;border-width:5px 5px 0 0;border-radius:0 17px 0 0}.bl{left:0;bottom:0;border-width:0 0 5px 5px;border-radius:0 0 0 17px}.br{right:0;bottom:0;border-width:0 5px 5px 0;border-radius:0 0 17px 0}.beam{position:absolute;left:4%;right:4%;top:50%;height:2px;background:#2df18a;box-shadow:0 0 14px #2df18a;animation:scan 1.5s ease-in-out infinite}@keyframes scan{0%,100%{transform:translateY(-70px);opacity:.3}50%{transform:translateY(70px);opacity:1}}
 .hint{position:absolute;z-index:4;top:12%;left:50%;transform:translateX(-50%);font-size:26px;font-weight:800;white-space:nowrap;text-shadow:0 2px 12px #000}.hint small{display:block;text-align:center;margin-top:3px;font-size:12px;font-weight:600;opacity:.9}
 .bottom{position:absolute;z-index:6;left:0;right:0;bottom:0;padding:0 18px calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}.controls{display:grid;grid-template-columns:repeat(3,1fr);align-items:end}.ctrl{min-height:64px;border:0;background:transparent;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;text-shadow:0 2px 8px #000}.ctrl.active{color:#fff}.ico{font-size:27px;line-height:1}.ctrl span:last-child{font-size:15px;font-weight:650}
 .upipay{display:flex;align-items:center;gap:8px;background:rgba(24,24,24,.72);border:1px solid rgba(255,255,255,.38);border-radius:30px;padding:6px 7px 6px 18px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.upipay input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;font-size:15px}.upipay input::placeholder{color:#f2f2f2}.upipay button{border:0;background:#fff;color:var(--p);font-weight:900;border-radius:24px;padding:11px 17px;cursor:pointer}.upipay button:active{transform:scale(.98)}
 .status{position:fixed;z-index:20;left:50%;bottom:125px;transform:translate(-50%,12px);opacity:0;pointer-events:none;background:rgba(0,0,0,.78);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:9px 13px;font-size:12px;font-weight:800;transition:.18s;white-space:nowrap}.status.show{opacity:1;transform:translate(-50%,0)}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:flex-end;justify-content:center;z-index:30}.modal.show{display:flex}.sheet{width:min(560px,100%);background:#fff;color:var(--p);border-radius:28px 28px 0 0;padding:22px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.45)}.sheet h2{margin:0 0 8px}.sheet p{color:#5e5364;font-size:13px;line-height:1.45}.sheet .row{display:flex;gap:10px}.sheet button{flex:1;border:0;border-radius:16px;padding:13px;font-weight:800;cursor:pointer}.primary{background:var(--p);color:#fff}.secondary{background:#eee7ef;color:var(--p)}
+
 @media(max-height:700px){.hint{top:11%;font-size:23px}.scanbox{top:19%;bottom:31%}.ctrl{min-height:55px}.ctrl span:last-child{font-size:13px}.upipay input{font-size:14px}}
 </style>
 </head>
 <body>
 <div class="app">
 <video id="video" playsinline muted autoplay></video><div class="shade"></div>
-<header class="top"><button class="back" id="back" aria-label="Back">←</button><div class="scanTitle">Scan any QR code</div></header>
-<div class="hint">Scan any UPI QR code<small>Point your camera at the QR</small></div>
+<header class="top"><button class="back" id="back" aria-label="Back">←</button><div class="scanTitle">Scan & Pay</div></header>
+
 <div class="scanbox"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><i class="beam"></i></div>
 <div class="bottom">
 <section class="upipay"><input id="upiId" inputmode="email" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="80" placeholder="Enter UPI ID to Pay"><button id="upiBtn">Pay</button></section>
-<section class="controls"><button class="ctrl active" id="scanBtn"><span class="ico">▦</span><span>Scan QR</span></button><button class="ctrl" id="myQrBtn"><span class="ico">⌘</span><span>My QR</span></button><button class="ctrl" id="torchBtn"><span class="ico">▰</span><span>Torch</span></button></section>
+<section class="controls"><button class="ctrl" id="torchBtn"><span class="ico">▰</span><span>Torch</span></button><button class="ctrl" id="zoomBtn"><span class="ico">＋</span><span>Zoom</span></button></section>
 </div></div>
 <div class="status" id="status"></div>
-<div class="modal" id="modal"><div class="sheet"><h2 id="modalTitle">UPI QR detected</h2><p id="modalText"></p><div class="row"><button class="secondary" id="closeModal">Cancel</button><button class="primary" id="continueBtn">Open UPI</button></div></div></div>
 <script>
 (()=>{'use strict';
-const $=id=>document.getElementById(id),video=$('video'),status=$('status'),modal=$('modal'),modalText=$('modalText'),upiId=$('upiId');
+const $=id=>document.getElementById(id),video=$('video'),status=$('status'),upiId=$('upiId');
 let stream=null,track=null,running=false,busy=false,detector=null,raf=0,lastValue='';
 const returnUrl=new URLSearchParams(location.search).get('return')||'';
 function say(t){status.textContent=t;status.classList.add('show');clearTimeout(say.t);say.t=setTimeout(()=>status.classList.remove('show'),1300)}
@@ -43,14 +42,25 @@ function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=0;if(stream)s
 async function start(){stop();if(!navigator.mediaDevices?.getUserMedia)return say('Camera is not supported');try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:false});video.srcObject=stream;await video.play();track=stream.getVideoTracks()[0];running=true;scanLoop()}catch(e){say('Allow camera access to scan')};}
 function validUpiId(v){return /^[a-zA-Z0-9._-]{2,}@[a-zA-Z0-9.-]{2,}$/.test(v.trim())}
 function buildUpi(v){return 'upi://pay?pa='+encodeURIComponent(v.trim())}
-function openUpi(uri){let target=uri;if(returnUrl){try{const u=new URL(returnUrl);u.searchParams.set('upi_uri',uri)}catch(e){}}location.href=target}
-function detected(value){if(busy||value===lastValue)return;lastValue=value;busy=true;stop();const v=value.trim();if(/^upi:\/\/pay/i.test(v)){modalText.textContent='UPI payment QR detected. Continue to open your installed UPI app.';$('continueBtn').textContent='Open UPI';$('continueBtn').onclick=()=>openUpi(v)}else{modalText.textContent='This QR does not contain a UPI payment address.';$('continueBtn').textContent='Scan Again';$('continueBtn').onclick=()=>{modal.classList.remove('show');busy=false;lastValue='';start()}}modal.classList.add('show')}
-async function scanLoop(){if(!running)return;if(!detector&&'BarcodeDetector'in window){try{detector=new BarcodeDetector({formats:['qr_code']})}catch(e){detector=null}}if(detector&&video.readyState>=2&&!busy){try{const codes=await detector.detect(video);if(codes[0]?.rawValue)detected(codes[0].rawValue)}catch(e){}}raf=requestAnimationFrame(scanLoop)}
-$('closeModal').onclick=()=>{modal.classList.remove('show');busy=false;lastValue='';start()};$('back').onclick=()=>{if(returnUrl)location.href=returnUrl;else history.back()};$('scanBtn').onclick=()=>{modal.classList.remove('show');busy=false;lastValue='';start()};
-$('torchBtn').onclick=async()=>{if(!track)return say('Camera not ready');try{const caps=track.getCapabilities();if(!caps.torch)return say('Torch not available');const on=$('torchBtn').dataset.on!=='1';await track.applyConstraints({advanced:[{torch:on}]});$('torchBtn').dataset.on=on?'1':'0';say(on?'Torch on':'Torch off')}catch(e){say('Torch unavailable')}};
-$('myQrBtn').onclick=()=>say('My QR is coming soon');
-$('upiBtn').onclick=()=>{const v=upiId.value.trim();if(!validUpiId(v))return say('Enter a valid UPI ID, e.g. name@bank');openUpi(buildUpi(v))};
-upiId.addEventListener('keydown',e=>{if(e.key==='Enter')$('upiBtn').click()});window.addEventListener('pagehide',stop);window.addEventListener('beforeunload',stop);start();
+function openUpi(uri){
+  if(!uri)return;
+  try{
+    location.href=uri;
+  }catch(e){
+    say('Unable to open UPI app');
+    busy=false;
+    lastValue='';
+    start();
+  }
+}
+function detected(value){
+  if(busy||value===lastValue)return;
+  const v=value.trim();
+  if(!/^upi:\/\/pay/i.test(v))return;
+  lastValue=v;
+  busy=true;
+  stop();
+  openUpi(v);
 })();
 </script>
 </body></html>
